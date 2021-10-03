@@ -1,0 +1,72 @@
+clc;
+i=input('scaling factor');
+cover=imread("image.jpg");
+figure(1)
+imshow(cover)
+grey=rgb2gray(cover);
+figure(2)
+imshow(grey)
+[image_h,image_w,~] = size(grey);
+x=dct2(double(grey));
+figure(3)
+imshow(x)
+x(abs(x) < 0.5) = 0;
+xidct = idct2(x);
+wimg=imread("p5.jpg");
+wrimg=imresize(wimg,0.25);
+figure(4)
+imshow(wrimg)
+wm1=rgb2gray(wrimg);
+figure(5)
+imshow(wm1)
+[wm_h,wm_w,~] = size(wm1);
+
+length = (image_w - wm_w);
+width = (image_h - wm_h);
+paddedwatermark = padarray(wm1,[width length],0,'pre');
+figure(6)
+imshow(paddedwatermark)
+
+wm2 = imbinarize(paddedwatermark);
+figure(7)
+imshow(wm2)
+
+wmdct = dct2(double(wm2));
+figure(8)
+imshow(wmdct)
+
+wmidct=idct2((wmdct));
+
+payload=(i*wmdct + i*x);
+
+payloadidct= idct2((payload));
+
+final = uint8(payloadidct);
+figure(9)
+imshow(final)
+
+dct_combined_img = dct2(final);
+extracted_wm = (final - grey);
+extracted_watermark = idct2(extracted_wm);
+figure(10)
+imshow(extracted_watermark)
+
+figure
+subplot(3,3,1)
+imshow(cover); title('Cover');
+subplot(3,3,2)
+imshow(grey); title('Grayscale Cover')
+subplot(3,3,3)
+imshow(wm1); title('grey watermark')
+subplot(3,3,4)
+imshow(x); title('DCT cover');
+subplot(3,3,5)
+imshow(paddedwatermark); title('{Padded Watermark image')
+subplot(3,3,6)
+imshow(wm2); title('Binary watermark')
+subplot(3,3,7)
+imshow(wmdct); title('Watermark DCT')
+subplot(3,3,8)
+imshow(final); title('Final')
+subplot(3,3,9)
+imshow(extracted_watermark); title('Final')
